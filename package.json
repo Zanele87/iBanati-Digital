@@ -6,9 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "start": "vite",
-    "format": "prettier --write ."
+    "preview": "vite preview"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",

@@ -1,4 +1,3 @@
-// src/pages/Contact.jsx
 import React, { useState } from "react";
 
 export default function Contact() {
@@ -19,8 +18,10 @@ export default function Contact() {
     return null;
   }
 
+  // <-- FINAL handleSubmit (keeps layout intact; calls correct endpoint in dev/prod)
   async function handleSubmit(e) {
     e.preventDefault();
+
     const err = validate();
     if (err) {
       setStatus({ loading: false, ok: false, error: err });
@@ -30,25 +31,38 @@ export default function Contact() {
     setStatus({ loading: true, ok: null, error: "" });
 
     try {
-      // Replace with your backend endpoint
-      const res = await fetch("/api/contact", {
+      // Use local Express server during development, production uses /api/send-email
+      const endpoint =
+        window.location.hostname === "localhost"
+          ? "http://localhost:3001/send-email"
+          : "/api/send-email";
+
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          message: form.message,
+          honeypot: "" // hidden anti-spam field
+        }),
       });
 
-      if (!res.ok) throw new Error("Server error");
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Server error");
 
       setForm({ name: "", email: "", message: "" });
       setStatus({ loading: false, ok: true, error: "" });
 
-      // Show popup overlay
       setShowPopup(true);
       setTimeout(() => setShowPopup(false), 5000);
+
     } catch (error) {
       setStatus({ loading: false, ok: false, error: error.message });
     }
   }
+  // -->
 
   return (
     <main className="relative max-w-6xl mx-auto p-8">
